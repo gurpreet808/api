@@ -3,7 +3,29 @@ require_once 'pizza.php';
 require_once 'IApiUsable.php';
 
 class pizzaApi extends pizza implements IApiUsable{
- 	public function TraerUno($request, $response, $args) {
+	public function TraerUno($request, $response, $args) {
+
+		try {
+			pizza::TraerTodasLasPizzas();
+		} catch (Exception $e) {			
+			$objetoAccesoDato = AccesoDatos::dameUnObjetoAcceso();
+			$consulta =$objetoAccesoDato->RetornarConsulta("CREATE TABLE `pizzas` (
+				`id_pizza` int NOT NULL AUTO_INCREMENT, 
+				`sabor` varchar(30) NOT NULL, 
+				`tipo` varchar(10) NOT NULL, 
+				`cantidad` int NOT NULL, 
+				`foto` varchar(80), 
+				PRIMARY KEY (`id_pizza`)
+			)");
+			
+			return $consulta->execute();			
+		}
+	   $newResponse = $response->withJson($laPizza, 200);
+
+	   return $newResponse;
+   }
+	
+	public function TraerUno($request, $response, $args) {
      	$id=$args['id'];
     	$laPizza=pizza::TraerUnaPizza($id);
 		$newResponse = $response->withJson($laPizza, 200);

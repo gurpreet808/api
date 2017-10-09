@@ -19,10 +19,10 @@ class usuario
 		  return $consulta->rowCount();
 	}
 
-	public static function BorrarUsuarioPorUsername($nomUsuario){
+	public static function BorrarUsuarioPorUsername($username){
 		$objetoAccesoDato = AccesoDatos::dameUnObjetoAcceso(); 
 		$consulta =$objetoAccesoDato->RetornarConsulta("DELETE from usuarios WHERE username=:username");	
-		$consulta->bindValue(':username',$nomUsuario, PDO::PARAM_STR);		
+		$consulta->bindValue(':username',$username, PDO::PARAM_STR);		
 		$consulta->execute();
 		
 		return $consulta->rowCount();
@@ -37,7 +37,8 @@ class usuario
 		 mail=:mail,
 		 username=:username,
 		 password=:password, 
-		 habilitado=:habilitado
+		 habilitado=:habilitado,
+		 foto=:foto		 
 		 
 		 WHERE id_usuario=:id_usuario");
 		 
@@ -48,6 +49,7 @@ class usuario
 		 $consulta->bindValue(':username', $this->username, PDO::PARAM_STR);
 		 $consulta->bindValue(':password', $this->password, PDO::PARAM_STR);
 		 $consulta->bindValue(':habilitado', $this->habilitado, PDO::PARAM_INT);
+		 $consulta->bindValue(':foto', $this->foto, PDO::PARAM_STR);
 		 
 		 return $consulta->execute();
 	}
@@ -55,8 +57,8 @@ class usuario
 	public function InsertarUsuario(){
 		 $objetoAccesoDato = AccesoDatos::dameUnObjetoAcceso();
 		 //inserta enlazando parametros dela instancia
-		 $consulta =$objetoAccesoDato->RetornarConsulta("INSERT INTO usuarios (nombre,apellido,mail,username,password,habilitado)
-		 values(:nombre,:apellido,:mail,:username,:password,:habilitado)");
+		 $consulta =$objetoAccesoDato->RetornarConsulta("INSERT INTO usuarios (nombre,apellido,mail,username,password,habilitado,foto)
+		 values(:nombre,:apellido,:mail,:username,:password,:habilitado,:foto)");
 
 		 $consulta->bindValue(':nombre',$this->nombre, PDO::PARAM_STR);
 		 $consulta->bindValue(':apellido', $this->apellido, PDO::PARAM_STR);
@@ -64,15 +66,17 @@ class usuario
 		 $consulta->bindValue(':username', $this->username, PDO::PARAM_STR);
 		 $consulta->bindValue(':password', $this->password, PDO::PARAM_STR);
 		 $consulta->bindValue(':habilitado', $this->habilitado, PDO::PARAM_INT);
+		 $consulta->bindValue(':foto', $this->foto, PDO::PARAM_STR);
 		 
 		 return $consulta->execute(); 
 	}
 	
-	public function Guardarusuario(){
+	public function GuardarUsuario(){
         if(empty(Usuario::TraerUnUsuario($this->username))){
             $this->InsertarUsuario();
             echo "Usuario guardado";
         } else {
+			//Si sólo está ID como unique no hace falta traerlo
             $elUsuario = Usuario::TraerUnUsuario($this->username);
             $this->id_usuario = $elUsuario->id_usuario;
             
@@ -86,15 +90,16 @@ class usuario
 	 
 	public static function TraerTodosLosUsuarios(){
 		 $objetoAccesoDato = AccesoDatos::dameUnObjetoAcceso();
-		 $consulta =$objetoAccesoDato->RetornarConsulta("SELECT id_usuario, nombre, apellido, mail, username, habilitado FROM usuarios");
+		 $consulta =$objetoAccesoDato->RetornarConsulta("SELECT id_usuario, nombre, apellido, mail, username, habilitado, foto FROM usuarios");
 		 $consulta->execute();
 		 
 		 return $consulta->fetchAll(PDO::FETCH_CLASS, "Usuario");		
 	}
 
 	public static function TraerUnUsuario($username){
+		//trae por algún UNIQUE
 		$objetoAccesoDato = AccesoDatos::dameUnObjetoAcceso(); 
-		$consulta =$objetoAccesoDato->RetornarConsulta("SELECT id_usuario, nombre, apellido, mail, username, habilitado FROM usuarios where username = :username");
+		$consulta =$objetoAccesoDato->RetornarConsulta("SELECT id_usuario, nombre, apellido, mail, username, habilitado, foto FROM usuarios where username = :username");
 		$consulta->bindValue(':username',$username, PDO::PARAM_STR);
         $consulta->execute();
 		$UsuarioBuscado= $consulta->fetchObject('Usuario');
@@ -112,6 +117,7 @@ class usuario
 	}
 
 	public static function BorrarUsuarioPorParametro($username){
+		//Borra por UNIQUE sino tendría que ser por ID
         $objetoAccesoDato = AccesoDatos::dameUnObjetoAcceso(); 
 		$consulta =$objetoAccesoDato->RetornarConsulta("DELETE FROM usuarios WHERE username=:username");	
 		$consulta->bindValue(':username',$username, PDO::PARAM_STR);		

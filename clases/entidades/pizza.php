@@ -7,6 +7,32 @@ class pizza
   	public $cantidad;
 	public $foto;
 
+	public static function CheckBBDD(){
+		try {
+			self::TraerTodasLasPizzas();
+		} catch (Exception $e) {			
+			$objetoAccesoDato = AccesoDatos::dameUnObjetoAcceso();
+			$consulta =$objetoAccesoDato->RetornarConsulta("CREATE TABLE `pizzas` (
+				`id_pizza` int NOT NULL AUTO_INCREMENT, 
+				`sabor` varchar(30) NOT NULL, 
+				`tipo` varchar(10) NOT NULL, 
+				`cantidad` int NOT NULL, 
+				`foto` varchar(80), 
+				PRIMARY KEY (`id_pizza`)
+			)");
+			
+			return $consulta->execute();			
+		}
+	}
+
+	public static function LlenarBBDD(){
+		$objetoAccesoDato = AccesoDatos::dameUnObjetoAcceso();
+		$consulta =$objetoAccesoDato->RetornarConsulta("INSERT INTO pizzas (sabor,tipo,cantidad)
+		 values('jamon','molde','23'), ('fugazzeta','piedra','9'), ('roquefort','molde','16')");
+			
+			return $consulta->execute();
+	}
+
   	public function BorrarPizza(){
 		  $objetoAccesoDato = AccesoDatos::dameUnObjetoAcceso();
 		  $consulta =$objetoAccesoDato->RetornarConsulta("DELETE from pizzas WHERE id_pizza=:id_pizza");

@@ -49,7 +49,10 @@ class usuarioApi extends Usuario implements IApiUsable{
 				$miUsuario->mail=$ArrayDeParametros['mail'];
 				$miUsuario->username=$ArrayDeParametros['username'];
                 $miUsuario->setPassword($ArrayDeParametros['password']);
-                $miUsuario->habilitado=$ArrayDeParametros['habilitado'];
+				$miUsuario->habilitado=$ArrayDeParametros['habilitado'];
+				if (!array_key_exists('foto', $ArrayDeParametros) && $ArrayDeParametros['foto']!=null) {
+					# code...
+				}
                 
 				$rta = $miUsuario->GuardarUsuario();
 			}	

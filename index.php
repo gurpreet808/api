@@ -60,7 +60,7 @@ $app->group('/pizza', function () {
  
    $this->put('/', \pizzaApi::class . ':ModificarUno');
  
- })->add(\MWparaCORS::class . ':HabilitarCORSTodos');
+ })->add(\pizzaApi::class . ':HabilitarCORSTodos')->add(\MWparaCORS::class . ':HabilitarCORSTodos');
 
 $app->get('/hola', function (Request $request, Response $response) {
     $response->getBody()->write("hola");
