@@ -3,10 +3,54 @@ require_once 'usuario.php';
 require_once 'IApiUsable.php';
 
 class usuarioApi extends Usuario implements IApiUsable{
+
+	public function CheckBBDD($request, $response, $next) {
+		$newResponse = $response;
+
+		try {
+			usuario::TraerTodosLosUsuarios();
+			$newResponse = $next($request, $response);
+			
+		} catch (Exception $e) {
+			$objetoAccesoDato = AccesoDatos::dameUnObjetoAcceso();
+			$consulta =$objetoAccesoDato->RetornarConsulta("CREATE TABLE `usuarios` (
+				`id_usuario` int NOT NULL AUTO_INCREMENT, 
+				`nombre` varchar(30) NOT NULL, 
+				`apellido` varchar(30) NOT NULL, 
+				`mail` varchar(50) NOT NULL UNIQUE,
+				`username` varchar(20) NOT NULL UNIQUE, 
+				`password` varchar(20) NOT NULL, 
+				`habilitado` int NOT NULL,  
+				`foto` varchar(80), 
+				PRIMARY KEY (`id_usuario`)
+			)");
+			
+			$newResponse->getBody()->write($consulta->execute());
+		}
+		return $newResponse;
+	}
+	
+	public function LlenarBBDD(){
+		$objetoAccesoDato = AccesoDatos::dameUnObjetoAcceso();
+		$consulta =$objetoAccesoDato->RetornarConsulta("INSERT INTO usuarios (nombre,apellido,mail,username,password,habilitado)
+	 		values
+			 ('administrador','administrator','admin@admin.com','admin','admin',0),
+			 ('usuario','user','user@user.com','user','user',0), 
+			 ('Pepe','López','pepe@pepe.com','pepe2017','pepe2017',0)");
+	
+		return $consulta->execute();
+	}
  	public function TraerUno($request, $response, $args) {
      	$username=$args['username'];
-    	$elUsuario=Usuario::TraerUnUsuario($username);
-		$newResponse = $response->withJson($elUsuario, 200);
+		$elUsuario=Usuario::TraerUnUsuario($username);
+		
+		$newResponse = $response;
+		
+		if (!$elUsuario) {
+			return $newResponse->getBody()->write('<p>ERROR!! No se encontró ese usuario.</p>');			
+		}	
+
+    	return $newResponse->withJson($elUsuario, 200);
 		//$newResponse = $newResponse->withAddedHeader('Token', 'unTokenCreado');
 
     	return $newResponse;

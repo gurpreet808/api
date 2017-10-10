@@ -3,11 +3,14 @@ require_once 'pizza.php';
 require_once 'IApiUsable.php';
 
 class pizzaApi extends pizza implements IApiUsable{
-	public function TraerUno($request, $response, $args) {
+	public function CheckBBDD($request, $response, $next) {
+		$newResponse = $response;
 
 		try {
 			pizza::TraerTodasLasPizzas();
-		} catch (Exception $e) {			
+			$newResponse = $next($request, $response);
+			
+		} catch (Exception $e) {
 			$objetoAccesoDato = AccesoDatos::dameUnObjetoAcceso();
 			$consulta =$objetoAccesoDato->RetornarConsulta("CREATE TABLE `pizzas` (
 				`id_pizza` int NOT NULL AUTO_INCREMENT, 
@@ -18,19 +21,30 @@ class pizzaApi extends pizza implements IApiUsable{
 				PRIMARY KEY (`id_pizza`)
 			)");
 			
-			return $consulta->execute();			
+			$newResponse->getBody()->write($consulta->execute());
 		}
-	   $newResponse = $response->withJson($laPizza, 200);
-
-	   return $newResponse;
-   }
+		return $newResponse;
+	}
+	
+	public function LlenarBBDD(){
+		$objetoAccesoDato = AccesoDatos::dameUnObjetoAcceso();
+		$consulta =$objetoAccesoDato->RetornarConsulta("INSERT INTO pizzas (sabor,tipo,cantidad)
+	 		values('jamon','molde','23'), ('fugazzeta','piedra','9'), ('roquefort','molde','16')");
+	
+		return $consulta->execute();
+	}
 	
 	public function TraerUno($request, $response, $args) {
-     	$id=$args['id'];
-    	$laPizza=pizza::TraerUnaPizza($id);
-		$newResponse = $response->withJson($laPizza, 200);
+		$id=$args['id'];		
+		$laPizza=pizza::TraerUnaPizza($id);
 
-    	return $newResponse;
+		$newResponse = $response;
+		
+		if (!$laPizza) {
+			return $newResponse->getBody()->write('<p>ERROR!! No se encontró esa pizza.</p>');			
+		}	
+
+    	return $newResponse->withJson($laPizza, 200);
     }
     
     public function TraerTodos($request, $response, $args) {
@@ -45,8 +59,9 @@ class pizzaApi extends pizza implements IApiUsable{
         //var_dump($ArrayDeParametros);
 
 		$newResponse = $response;
-        
-		if (!array_key_exists('sabor', $ArrayDeParametros) 
+
+		if (is_null($ArrayDeParametros)
+		or !array_key_exists('sabor', $ArrayDeParametros) 
         or !array_key_exists('tipo', $ArrayDeParametros)
         or !array_key_exists('cantidad', $ArrayDeParametros)) {
 			$rta = '<p>Ingrese todas las keys ("sabor", "tipo", y "cantidad")</p>';
