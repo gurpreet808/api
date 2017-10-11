@@ -28,7 +28,7 @@ $app->group('/usuario', function () {
 
   $this->delete('/', \usuarioApi::class . ':BorrarUno');
 
-  $this->put('/', \usuarioApi::class . ':LlenarBBDD');
+  $this->put('/', \usuarioApi::class . ':ModificarUno');
 
 });
 
@@ -50,9 +50,9 @@ $app->group('/persona', function () {
 /*Pizza*/
 $app->group('/pizza', function () {
   
-   $this->get('/', \pizzaApi::class . ':traerTodos')->add(\MWparaCORS::class . ':HabilitarCORSTodos');
+   $this->get('/', \pizzaApi::class . ':traerTodos');
   
-   $this->get('/{id}', \pizzaApi::class . ':traerUno')->add(\MWparaCORS::class . ':HabilitarCORSTodos');
+   $this->get('/{id}', \pizzaApi::class . ':traerUno');
  
    $this->post('/', \pizzaApi::class . ':CargarUno');
  
@@ -60,7 +60,7 @@ $app->group('/pizza', function () {
  
    $this->put('/', \pizzaApi::class . ':ModificarUno');
  
- })->add(\pizzaApi::class . ':CheckBBDD')->add(\MWparaCORS::class . ':HabilitarCORSTodos');
+ })->add(\MWparaCORS::class . ':HabilitarCORS4200');
 
 $app->get('/hola', function (Request $request, Response $response) {
     $response->getBody()->write("hola");
