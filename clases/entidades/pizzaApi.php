@@ -111,7 +111,6 @@ class pizzaApi extends pizza implements IApiUsable{
 		$newResponse = $response;
 		
 		$ArrayDeParametros = $request->getParsedBody();
-		$newResponse = $response;
 
 		if (!array_key_exists('sabor', $ArrayDeParametros)
 		or !array_key_exists('foto', $ArrayDeParametros)
